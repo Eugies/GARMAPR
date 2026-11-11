@@ -1,154 +1,207 @@
-GARMAPR
-
-An R package for accessing water quality data from the Gulf of America Regional Monitoring and Assessment Program (GARMAP).
-
-Overview
-
-GARMAPR provides an interface for accessing water quality observations from the GARMAP monitoring database. The package allows users to authenticate with GARMAP, identify available monitoring stations, retrieve available water quality parameters, and download observations from individual or multiple stations.
 
 
-Installation
+# GARMAPR
 
-Install GARMAPR directly from GitHub using remotes:
+<div align="center">
 
+**An R package for accessing water-quality sonde data from the Gulf of America Regional Monitoring and Assessment Program (GARMAP).**
+
+[![R](https://img.shields.io/badge/R-%3E%3D4.1.0-276DC3?logo=r&logoColor=white)](https://www.r-project.org/)
+[![GitHub repository](https://img.shields.io/badge/GitHub-Eugies%2FGARMAPR-181717?logo=github)](https://github.com/Eugies/GARMAPR)
+[![Open issues](https://img.shields.io/github/issues/Eugies/GARMAPR)](https://github.com/Eugies/GARMAPR/issues)
+[![Last commit](https://img.shields.io/github/last-commit/Eugies/GARMAPR)](https://github.com/Eugies/GARMAPR/commits/main)
+
+</div>
+
+---
+
+## Overview
+
+**GARMAPR** provides an R interface for retrieving water-quality sonde data from the [GARMAP data portal](https://garmapdata.gsmfc.org/).
+
+The package handles authentication with the GARMAP website, retrieves available monitoring stations, and downloads sonde observations for selected water-quality parameters. Data can be retrieved for individual stations and parameters or across all stations and parameters available through the authenticated dashboard.
+
+The goal of GARMAPR is to make GARMAP monitoring data easier to access, organize, and incorporate into reproducible R-based analyses.
+
+## Features
+
+- **Authentication:** Log in to GARMAP directly from R using your account credentials.
+- **Station information:** Retrieve the monitoring stations available to your account.
+- **Parameter information:** Access the available sonde water-quality parameters.
+- **Data retrieval:** Download sonde observations for individual stations and parameters.
+- **Multiple-station downloads:** Retrieve data across multiple stations and parameters in a single function call.
+- **Combined datasets:** Automatically combine retrieved observations into one data frame.
+
+## Installation
+
+Install the development version from GitHub using `remotes`:
+
+```r
 install.packages("remotes")
 
 remotes::install_github("Eugies/GARMAPR")
+```
 
 Load the package:
 
+```r
 library(GARMAPR)
+```
+
+## Getting started
+
+### 1. Authenticate with GARMAP
+
+A GARMAP account is required to access monitoring data.
 
 Authenticate using:
 
+```r
 auth <- garmap_authenticate()
+```
 
-The function prompts for your GARMAP email address and password and returns an authentication object containing the session information required for subsequent requests. If you do not have a login, p[lease request one from https://garmap.gsmfc.org/contact.php
+The function will prompt for your GARMAP email address and password. Your credentials are used to establish an authenticated session with the GARMAP website.
 
-Available functions
+The returned authentication object is used in subsequent data retrieval functions.
 
-Function
+### 2. Retrieve available monitoring stations
 
-Description
+Use `garmap_get_stations()` to retrieve the monitoring stations available through your authenticated dashboard.
 
-garmap_authenticate()
-
-Authenticates with the GARMAP database.
-
-garmap_get_stations()
-
-Retrieves available monitoring stations.
-
-garmap_get_parameters()
-
-Lists available sonde parameters.
-
-garmap_get_sonde_data()
-
-Retrieves water quality observations for specified stations and parameters.
-
-Retrieving monitoring stations
-
-Retrieve the monitoring stations available through your authenticated dashboard:
-
+```r
 stations <- garmap_get_stations(auth)
 
 head(stations)
-
-The returned data frame contains station identifiers and station names.
-
-Retrieving available parameters
-
-List the supported sonde parameters:
-
-parameters <- garmap_get_parameters()
-
-print(parameters)
-
-Retrieving sonde data
-
-Retrieve observations for an individual station and parameter:
-
-salinity <- garmap_get_sonde_data(
-  auth = auth,
-  station = "MS00006",
-  parameter = "SAL_PSU"
-)
+```
 
 The returned data frame contains:
 
-Column
+| Column | Description |
+|---|---|
+| `station` | GARMAP station identifier |
+| `station_name` | Monitoring station name |
 
-Description
+### 3. Retrieve available parameters
 
-date
+Use `garmap_get_parameters()` to view the water-quality parameters supported by the package.
 
-Date of observation.
+```r
+parameters <- garmap_get_parameters()
 
-value
+parameters
+```
 
-Measured water quality value.
+The currently supported parameters are:
 
-station
+| Parameter | Description |
+|---|---|
+| `TEMP_C` | Temperature (°C) |
+| `SAL_PSU` | Salinity (PSU) |
+| `ODO` | Dissolved oxygen |
 
-GARMAP monitoring station identifier.
+### 4. Download sonde data
 
-parameter
+Use `garmap_get_sonde_data()` to retrieve observations for a specific station and parameter.
 
-Water quality parameter code.
+For example, to retrieve temperature data from station `MS00006`:
 
-The function retrieves all observations returned by the GARMAP endpoint for the selected station and parameter.
-
-Retrieving multiple stations and parameters
-
-GARMAPR supports retrieving data from multiple stations and parameters in a single function call.
-
-For example, retrieve salinity observations from two monitoring stations:
-
-salinity <- garmap_get_sonde_data(
-  auth = auth,
-  station = c("MS00006", "MS00060"),
-  parameter = "SAL_PSU"
-)
-
-Retrieve multiple parameters from a single station:
-
-water_quality <- garmap_get_sonde_data(
+```r
+temperature <- garmap_get_sonde_data(
   auth = auth,
   station = "MS00006",
-  parameter = c("TEMP_C", "SAL_PSU", "ODO")
+  parameter = "TEMP_C"
 )
 
-To retrieve all stations and supported parameters available through the package:
+head(temperature)
+```
 
+The returned data frame contains:
+
+| Column | Description |
+|---|---|
+| `date` | Observation date |
+| `value` | Measured water-quality value |
+| `station` | Station identifier |
+| `parameter` | Water-quality parameter |
+
+The available date range for the requested station and parameter is also stored as an attribute:
+
+```r
+attr(temperature, "available_range")
+```
+
+### 5. Download data from multiple stations and parameters
+
+GARMAPR supports retrieving data from multiple stations and parameters in one function call.
+
+To retrieve temperature data from all available stations:
+
+```r
+temperature_all <- garmap_get_sonde_data(
+  auth = auth,
+  station = "all",
+  parameter = "TEMP_C"
+)
+```
+
+To retrieve all available parameters from one station:
+
+```r
+station_data <- garmap_get_sonde_data(
+  auth = auth,
+  station = "MS00006",
+  parameter = "all"
+)
+```
+
+To retrieve all available data across all stations and parameters:
+
+```r
 all_data <- garmap_get_sonde_data(
   auth = auth,
   station = "all",
   parameter = "all"
 )
+```
 
-The returned data are combined into one data frame, with station and parameter identifiers retained for each observation.
+The results are combined into a single data frame, with station and parameter identifiers retained for filtering and analysis.
 
-Temporal resolution
+```r
+# Explore the combined dataset
+head(all_data)
 
-The current sonde data retrieval function accesses the GARMAP detail-data endpoint, which returns date-based observations. The returned timestamps are currently formatted as calendar dates (YYYY-MM-DD).
+# View available stations
+unique(all_data$station)
 
-Although historical GARMAP documentation describes sonde measurements collected at 30-minute intervals, retrieval of those individual high-frequency observations has not yet been established through the current endpoint.
+# View available parameters
+unique(all_data$parameter)
 
-Dependencies
+# Summarize observations by station and parameter
+table(all_data$station, all_data$parameter)
+```
 
-GARMAPR uses the following R packages:
+## Data considerations
 
-httr2 — HTTP requests and authenticated sessions.
+The current GARMAP data retrieval endpoint returns observations with date-only timestamps. Consequently, the data retrieved through `garmap_get_sonde_data()` are represented at a **daily temporal resolution**.
 
-jsonlite — JSON response processing.
+Although GARMAP sondes may collect measurements at finer temporal intervals, retrieval of those higher-frequency observations has not yet been confirmed through the endpoint currently implemented in GARMAPR.
 
-rstudioapi — Secure password prompting in RStudio.
+The stations returned by `garmap_get_stations()` reflect the stations available through the authenticated GARMAP dashboard.
 
-Development status
+## Functions
 
-GARMAPR is currently under development. Additional functionality and data retrieval capabilities may be added as the GARMAP database interface is further investigated.
+| Function | Description |
+|---|---|
+| `garmap_authenticate()` | Authenticate with the GARMAP data portal. |
+| `garmap_get_stations()` | Retrieve available monitoring stations. |
+| `garmap_get_parameters()` | Retrieve supported water-quality parameters. |
+| `garmap_get_sonde_data()` | Retrieve sonde observations by station and parameter. |
 
-License
+## Contributing
 
-MIT License.
+Suggestions, bug reports, and contributions are welcome. Please submit an issue through the [GitHub repository](https://github.com/Eugies/GARMAPR/issues).
+
+## Disclaimer
+
+GARMAPR is an independently developed R package and is not an official product of GARMAP or the Gulf States Marine Fisheries Commission (GSMFC). Users should consult the [GARMAP data portal](https://garmapdata.gsmfc.org/) for original data and program information.
+
