@@ -2,10 +2,12 @@ Package: GARMAPR
 Type: Package
 Title: Access and Retrieve Water Quality Data from GARMAP
 Version: 0.1.0
-Authors: 
+Authors@R:
     person("Eugin", "Bornman",
            email = "euginbornman@gmail.com",
            role = c("aut", "cre"))
+Author: Eugin Bornman [aut, cre]
+Maintainer: Eugin Bornman <euginbornman@gmail.com>
 Description: Provides functions to authenticate with the Gulf of America
     Regional Monitoring and Assessment Program (GARMAP) database and
     retrieve water quality observations from monitoring stations.
