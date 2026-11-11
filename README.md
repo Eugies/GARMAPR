@@ -52,7 +52,7 @@ library(GARMAPR)
 
 ### 1. Authenticate with GARMAP
 
-A GARMAP account is required to access monitoring data.
+A GARMAP account is required to access monitoring data. To get login details, please contact [GARMAP Contact](https://garmap.gsmfc.org/contact.php/).
 
 Authenticate using:
 
