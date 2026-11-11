@@ -6,15 +6,6 @@ Overview
 
 GARMAPR provides an interface for accessing water quality observations from the GARMAP monitoring database. The package allows users to authenticate with GARMAP, identify available monitoring stations, retrieve available water quality parameters, and download observations from individual or multiple stations.
 
-The package uses authenticated requests to retrieve data directly from the GARMAP database.
-
-Currently supported water quality parameters include:
-
-Temperature (TEMP_C)
-
-Salinity (SAL_PSU)
-
-Dissolved Oxygen (ODO)
 
 Installation
 
@@ -22,32 +13,17 @@ Install GARMAPR directly from GitHub using remotes:
 
 install.packages("remotes")
 
-remotes::install_github("YOUR-GITHUB-USERNAME/GARMAPR")
-
-Replace YOUR-GITHUB-USERNAME with the GitHub username or organization hosting the repository.
+remotes::install_github("Eugies/GARMAPR")
 
 Load the package:
 
 library(GARMAPR)
 
-Authentication
-
-GARMAP requires an authenticated user session to access monitoring data.
-
 Authenticate using:
 
 auth <- garmap_authenticate()
 
-The function prompts for your GARMAP email address and password and returns an authentication object containing the session information required for subsequent requests.
-
-Alternatively, credentials can be supplied directly:
-
-auth <- garmap_authenticate(
-  username = "your_email",
-  password = "your_password"
-)
-
-Security: Avoid storing passwords directly in scripts or sharing them in public repositories.
+The function prompts for your GARMAP email address and password and returns an authentication object containing the session information required for subsequent requests. If you do not have a login, p[lease request one from https://garmap.gsmfc.org/contact.php
 
 Available functions
 
